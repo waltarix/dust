@@ -25,12 +25,12 @@ fn build_command<T: AsRef<OsStr>>(command_args: Vec<T>) -> String {
 // We can at least test the file names are there
 #[test]
 pub fn test_basic_output() {
-    let output = build_command(vec!["tests/test_dir/"]);
+    let output = build_command(vec!["-C", "tests/test_dir/"]);
 
     assert!(output.contains(" ┌─┴ "));
-    assert!(output.contains("test_dir "));
+    assert!(output.contains("test_dir\x1b[0m "));
     assert!(output.contains("  ┌─┴ "));
-    assert!(output.contains("many "));
+    assert!(output.contains("many\x1b[0m "));
     assert!(output.contains("    ├── "));
     assert!(output.contains("hello_file"));
     assert!(output.contains("     ┌── "));
@@ -233,6 +233,16 @@ pub fn test_output_screen_reader() {
 }
 
 #[test]
+pub fn test_output_screen_reader_with_color() {
+    let output = build_command(vec!["-C", "--screen-reader", "-f", "tests/test_dir/"]);
+    println!("{}", output);
+    assert!(output.contains("test_dir\x1b[0m   0 \x1b[38;5;9m2\x1b[0m "));
+    assert!(output.contains("many\x1b[0m       1 \x1b[38;5;9m2\x1b[0m "));
+    assert!(output.contains("hello_file 2 \x1b[38;5;9m1\x1b[0m "));
+    assert!(output.contains("a_file     2 1 "));
+}
+
+#[test]
 pub fn test_show_files_by_regex_match_lots() {
     // Check we can see '.rs' files in the tests directory
     let output = build_command(vec!["-c", "-e", "\\.rs$", "tests"]);
@@ -302,16 +312,14 @@ pub fn test_show_files_by_invert_regex_match_multiple() {
 #[test]
 pub fn test_no_color() {
     let output = build_command(vec!["-c"]);
-    // Red is 31
-    assert!(!output.contains("\x1B[31m"));
+    assert!(!output.contains("\x1B[38;"));
     assert!(!output.contains("\x1B[0m"));
 }
 
 #[test]
 pub fn test_force_color() {
     let output = build_command(vec!["-C"]);
-    // Red is 31
-    assert!(output.contains("\x1B[31m"));
+    assert!(output.contains("\x1B[38;"));
     assert!(output.contains("\x1B[0m"));
 }
 

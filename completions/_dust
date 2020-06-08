@@ -71,6 +71,7 @@ m\:"last modified time"))' \
 '--filetime=[Directory '\''size'\'' is max filetime of child files instead of disk size. while a/c/m for last accessed/changed/modified time]:FILETIME:((a\:"last accessed time"
 c\:"last changed time"
 m\:"last modified time"))' \
+'--spinner=[]:SPINNER:(bar dots arc)' \
 '-p[Subdirectories will not have their path shortened]' \
 '--full-paths[Subdirectories will not have their path shortened]' \
 '-L[dereference sym links - Treat sym links as directories and go into them]' \

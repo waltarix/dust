@@ -9,6 +9,7 @@ use std::path::PathBuf;
 use crate::cli::Cli;
 use crate::dir_walker::Operator;
 use crate::display::get_number_format;
+use crate::progress::spinner::Spinner;
 
 pub static DAY_SECONDS: i64 = 24 * 60 * 60;
 
@@ -39,6 +40,7 @@ pub struct Config {
     pub number_of_lines: Option<usize>,
     pub files_from: Option<String>,
     pub collapse: Option<Vec<String>>,
+    pub spinner: Option<Spinner>,
 }
 
 impl Config {
@@ -185,6 +187,11 @@ impl Config {
         } else {
             self.collapse.clone()
         }
+    }
+    pub fn get_spinner(&self, options: &Cli) -> Spinner {
+        options
+            .spinner
+            .unwrap_or(self.spinner.unwrap_or(Spinner::Arc))
     }
 }
 

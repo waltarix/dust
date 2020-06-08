@@ -1,3 +1,5 @@
+pub mod spinner;
+
 use std::{
     collections::HashSet,
     io::Write,
@@ -22,9 +24,7 @@ use crate::display::human_readable_number;
 
 pub const ORDERING: Ordering = Ordering::Relaxed;
 
-const SPINNER_SLEEP_TIME: u64 = 100;
-const PROGRESS_CHARS: [char; 4] = ['-', '\\', '|', '/'];
-const PROGRESS_CHARS_LEN: usize = PROGRESS_CHARS.len();
+const SPINNER_SLEEP_TIME: u64 = 50;
 
 pub trait ThreadSyncTrait<T> {
     fn set(&self, val: T);
@@ -100,15 +100,17 @@ fn format_indexing_str(prog_char: char, data: &PAtomicInfo, output_display: &str
 pub struct PIndicator {
     pub thread: Option<(Sender<()>, JoinHandle<()>)>,
     pub data: Arc<PAtomicInfo>,
+    spinner_chars: &'static [char],
 }
 
 impl PIndicator {
-    pub fn build_me() -> Self {
+    pub fn build_me(spinner_chars: &'static [char]) -> Self {
         Self {
             thread: None,
             data: Arc::new(PAtomicInfo {
                 ..Default::default()
             }),
+            spinner_chars,
         }
     }
 
@@ -116,8 +118,10 @@ impl PIndicator {
         let data = self.data.clone();
         let (stop_handler, receiver) = mpsc::channel::<()>();
 
+        let spinner_chars = self.spinner_chars;
+        let spinner_chars_len = spinner_chars.len();
         let time_info_thread = std::thread::spawn(move || {
-            let mut progress_char_i: usize = 0;
+            let mut spinner_char_i: usize = 0;
             let mut stderr = std::io::stderr();
             let mut msg = "".to_string();
 
@@ -129,7 +133,7 @@ impl PIndicator {
                 // Clear the text written by 'write!'& Return at the start of line
                 let clear = format!("\r{:width$}", " ", width = msg.len());
                 write!(stderr, "{clear}").unwrap();
-                let prog_char = PROGRESS_CHARS[progress_char_i];
+                let prog_char = spinner_chars[spinner_char_i];
 
                 msg = match data.state.load(ORDERING) {
                     Operation::INDEXING => format_indexing_str(prog_char, &data, &output_display),
@@ -140,8 +144,8 @@ impl PIndicator {
                 write!(stderr, "\r{msg}").unwrap();
                 stderr.flush().unwrap();
 
-                progress_char_i += 1;
-                progress_char_i %= PROGRESS_CHARS_LEN;
+                spinner_char_i += 1;
+                spinner_char_i %= spinner_chars_len;
             }
 
             let clear = format!("\r{:width$}", " ", width = msg.len());
