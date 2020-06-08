@@ -1,4 +1,4 @@
-use clap::{Arg, Command};
+use clap::{Arg, Command, ValueHint};
 
 // For single thread mode set this variable on your command line:
 // export RAYON_NUM_THREADS=1
@@ -168,5 +168,5 @@ pub fn build_cli() -> Command<'static> {
                 .conflicts_with("only_dir")
                 .help("Only files will be displayed. (Finds your largest files)"),
         )
-        .arg(Arg::new("inputs").multiple_occurrences(true))
+        .arg(Arg::new("inputs").multiple_occurrences(true).value_hint(ValueHint::AnyPath))
 }
