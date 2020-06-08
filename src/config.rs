@@ -9,6 +9,7 @@ use std::path::PathBuf;
 use crate::cli::Cli;
 use crate::dir_walker::Operator;
 use crate::display::get_number_format;
+use crate::progress::spinner::Spinner;
 
 pub static DAY_SECONDS: i64 = 24 * 60 * 60;
 
@@ -36,6 +37,7 @@ pub struct Config {
     pub output_json: Option<bool>,
     pub print_errors: Option<bool>,
     pub files0_from: Option<String>,
+    pub spinner: Option<Spinner>,
 }
 
 impl Config {
@@ -157,6 +159,12 @@ impl Config {
 
     pub fn get_changed_time_operator(&self, options: &Cli) -> Option<(Operator, i64)> {
         get_filter_time_operator(options.ctime.as_ref(), get_current_date_epoch_seconds())
+    }
+
+    pub fn get_spinner(&self, options: &Cli) -> Spinner {
+        options
+            .spinner
+            .unwrap_or(self.spinner.unwrap_or(Spinner::Arc))
     }
 }
 

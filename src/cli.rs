@@ -2,6 +2,8 @@ use std::fmt;
 
 use clap::{Parser, ValueEnum, ValueHint};
 
+use crate::progress::spinner::Spinner;
+
 // For single thread mode set this variable on your command line:
 // export RAYON_NUM_THREADS=1
 
@@ -185,6 +187,9 @@ pub struct Cli {
     /// while a/c/m for last accessed/changed/modified time
     #[arg(short('m'), long, value_enum)]
     pub filetime: Option<FileTime>,
+
+    #[arg(long)]
+    pub spinner: Option<Spinner>,
 }
 
 #[derive(Clone, Copy, Debug, ValueEnum)]
