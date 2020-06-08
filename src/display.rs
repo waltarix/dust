@@ -1,7 +1,7 @@
 use crate::display_node::DisplayNode;
 use crate::node::FileTime;
 
-use ansi_term::Colour::Red;
+use ansi_term::Colour::Fixed;
 use lscolors::{LsColors, Style};
 
 use unicode_width::UnicodeWidthStr;
@@ -202,13 +202,11 @@ fn find_longest_dir_name(
 ) -> usize {
     let printable_name = get_printable_name(&node.name, idd.short_paths);
 
+    let width = printable_name.width() + 1;
     let longest = if idd.is_screen_reader {
-        UnicodeWidthStr::width(&*printable_name) + 1
+        width
     } else {
-        min(
-            UnicodeWidthStr::width(&*printable_name) + 1 + indent,
-            terminal,
-        )
+        min(width + indent, terminal)
     };
 
     // each none root tree drawing is 2 more chars, hence we increment indent by 2
@@ -287,10 +285,14 @@ pub fn get_printable_name<P: AsRef<Path>>(dir_name: &P, short_paths: bool) -> St
     encode_u8(printable_name.display().to_string().as_bytes())
 }
 
-fn pad_or_trim_filename(node: &DisplayNode, indent: &str, display_data: &DisplayData) -> String {
+fn pad_or_trim_filename(
+    node: &DisplayNode,
+    indent: &str,
+    display_data: &DisplayData,
+) -> (String, String) {
     let name = get_printable_name(&node.name, display_data.initial.short_paths);
     let indent_and_name = format!("{indent} {name}");
-    let width = UnicodeWidthStr::width(&*indent_and_name);
+    let width = indent_and_name.width();
 
     assert!(
         display_data.longest_string_length >= width,
@@ -298,23 +300,20 @@ fn pad_or_trim_filename(node: &DisplayNode, indent: &str, display_data: &Display
     );
 
     // Add spaces after the filename so we can draw the % used bar chart.
-    let name_and_padding = name
-        + " "
-            .repeat(display_data.longest_string_length - width)
-            .as_str();
+    let padding = " ".repeat(display_data.longest_string_length - width);
 
-    name_and_padding
+    (name, padding)
 }
 
 fn maybe_trim_filename(name_in: String, indent: &str, display_data: &DisplayData) -> String {
-    let indent_length = UnicodeWidthStr::width(indent);
+    let indent_length = indent.width();
     assert!(
         display_data.longest_string_length >= indent_length + 2,
         "Terminal width not wide enough to draw directory tree"
     );
 
     let max_size = display_data.longest_string_length - indent_length;
-    if UnicodeWidthStr::width(&*name_in) > max_size {
+    if name_in.width() > max_size {
         let name = name_in.chars().take(max_size - 2).collect::<String>();
         name + ".."
     } else {
@@ -329,9 +328,9 @@ pub fn format_string(
     is_biggest: bool,
     display_data: &DisplayData,
 ) -> String {
-    let (percent, name_and_padding) = get_name_percent(node, indent, bars, display_data);
+    let (percent, name, padding) = get_name_percent(node, indent, bars, display_data);
     let pretty_size = get_pretty_size(node, is_biggest, display_data);
-    let pretty_name = get_pretty_name(node, name_and_padding, display_data);
+    let pretty_name = get_pretty_name(node, name, padding, display_data);
     // we can clean this and the method below somehow, not sure yet
     if display_data.initial.is_screen_reader {
         // if screen_reader then bars is 'depth'
@@ -343,29 +342,38 @@ pub fn format_string(
     }
 }
 
+fn format_bar_chart(bar_chart: &str, colors_on: bool) -> String {
+    if colors_on {
+        format!("{}", Fixed(228).paint(bar_chart))
+    } else {
+        bar_chart.to_owned()
+    }
+}
+
 fn get_name_percent(
     node: &DisplayNode,
     indent: &str,
     bar_chart: &str,
     display_data: &DisplayData,
-) -> (String, String) {
+) -> (String, String, String) {
     if display_data.initial.is_screen_reader {
         let percent = display_data.percent_size(node) * 100.0;
         let percent_size_str = format!("{percent:.0}%");
         let percents = format!(" {percent_size_str:>4}",);
-        let name = pad_or_trim_filename(node, "", display_data);
-        (percents, name)
+        let (name, padding) = pad_or_trim_filename(node, "", display_data);
+        (percents, name, padding)
     // Bar chart being empty may come from either config or the screen not being wide enough
     } else if !bar_chart.is_empty() {
         let percent = display_data.percent_size(node) * 100.0;
         let percent_size_str = format!("{percent:.0}%");
+        let bar_chart = format_bar_chart(bar_chart, display_data.initial.colors_on);
         let percents = format!("│{bar_chart} │ {percent_size_str:>4}");
-        let name_and_padding = pad_or_trim_filename(node, indent, display_data);
-        (percents, name_and_padding)
+        let (name, padding) = pad_or_trim_filename(node, indent, display_data);
+        (percents, name, padding)
     } else {
         let n = get_printable_name(&node.name, display_data.initial.short_paths);
         let name = maybe_trim_filename(n, indent, display_data);
-        ("".into(), name)
+        ("".to_owned(), name, "".to_owned())
     }
 }
 
@@ -378,12 +386,13 @@ fn get_pretty_size(node: &DisplayNode, is_biggest: bool, display_data: &DisplayD
         human_readable_number(node.size, &display_data.initial.output_format)
     };
     let spaces_to_add = display_data.num_chars_needed_on_left_most - output.chars().count();
-    let output = " ".repeat(spaces_to_add) + output.as_str();
+    let padding = " ".repeat(spaces_to_add);
 
     if is_biggest && display_data.initial.colors_on {
-        format!("{}", Red.paint(output))
+        let output = Fixed(9).paint(output);
+        format!("{padding}{output}")
     } else {
-        output
+        format!("{padding}{output}")
     }
 }
 
@@ -397,22 +406,23 @@ fn get_pretty_file_modified_time(timestamp: i64) -> String {
 
 fn get_pretty_name(
     node: &DisplayNode,
-    name_and_padding: String,
+    name: String,
+    padding: String,
     display_data: &DisplayData,
 ) -> String {
-    if display_data.initial.colors_on {
-        let meta_result = fs::metadata(&node.name);
-        let directory_color = display_data
-            .ls_colors
-            .style_for_path_with_metadata(&node.name, meta_result.as_ref().ok());
-        let ansi_style = directory_color
-            .map(Style::to_ansi_term_style)
-            .unwrap_or_default();
-        let out = ansi_style.paint(name_and_padding);
-        format!("{out}")
-    } else {
-        name_and_padding
+    if !display_data.initial.colors_on {
+        return format!("{name}{padding}");
     }
+
+    let meta_result = fs::metadata(&node.name);
+    let directory_color = display_data
+        .ls_colors
+        .style_for_path_with_metadata(&node.name, meta_result.as_ref().ok());
+    let ansi_style = directory_color
+        .map(Style::to_ansi_term_style)
+        .unwrap_or_default();
+    let name = ansi_style.paint(name);
+    format!("{name}{padding}")
 }
 
 // If we are working with SI units or not

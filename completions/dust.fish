@@ -27,6 +27,9 @@ complete -c dust -l collapse -d 'Keep these directories collapsed' -r -F
 complete -c dust -s m -l filetime -d 'Directory \'size\' is max filetime of child files instead of disk size. while a/c/m for last accessed/changed/modified time' -r -f -a "a\t''
 c\t''
 m\t''"
+complete -c dust -l spinner -r -f -a "bar\t''
+dots\t''
+arc\t''"
 complete -c dust -s p -l full-paths -d 'Subdirectories will not have their path shortened'
 complete -c dust -s L -l dereference-links -d 'dereference sym links - Treat sym links as directories and go into them'
 complete -c dust -s x -l limit-filesystem -d 'Only count the files and directories on the same filesystem as the supplied directory'

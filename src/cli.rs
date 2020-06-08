@@ -1,5 +1,7 @@
 use clap::{Arg, Command, builder::PossibleValue, value_parser};
 
+use crate::progress::spinner::Spinner;
+
 // For single thread mode set this variable on your command line:
 // export RAYON_NUM_THREADS=1
 
@@ -322,5 +324,11 @@ pub fn build_cli() -> Command {
                     PossibleValue::new("m").alias("modified"),
                 ])
                 .help("Directory 'size' is max filetime of child files instead of disk size. while a/c/m for last accessed/changed/modified time"),
+        )
+        .arg(
+            Arg::new("spinner")
+                .long("spinner")
+                .num_args(1)
+                .value_parser(value_parser!(Spinner))
         )
 }
