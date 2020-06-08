@@ -25,11 +25,12 @@ path = "src/main.rs"
 codegen-units = 1
 lto = true
 strip = true
+opt-level = 3
 
 [dependencies]
 ansi_term = "0.12"
 atty = "0.2.14"
-clap = "3.2.17"
+clap = { version = "4.1", features = ["cargo", "string"] }
 lscolors = "0.13"
 terminal_size = "0.2"
 unicode-width = "0.1"
@@ -50,9 +51,10 @@ assert_cmd = "2"
 tempfile = "=3"
 
 [build-dependencies]
-clap = "3.2.17"
-clap_complete = "3.2.4"
-clap_mangen = "0.1"
+clap = { version = "4.1", features = ["cargo", "string"] }
+clap_complete = "4.1"
+clap_mangen = "0.2"
+serde = { version = "1.0", features = ["derive"] }
 
 [[test]]
 name = "integration"
@@ -82,3 +84,6 @@ Dust is meant to give you an instant overview of which directories are using
 disk space without requiring sort or head. Dust will print a maximum of one
 'Did not have permissions message'.
 """
+
+[patch.crates-io]
+unicode-width = { git = "https://github.com/waltarix/unicode-width", tag = "v0.1.10-custom-r2" }
