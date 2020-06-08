@@ -1,5 +1,5 @@
 _dust() {
-    local i cur prev opts cmds
+    local i cur prev opts cmd
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
@@ -8,8 +8,8 @@ _dust() {
 
     for i in ${COMP_WORDS[@]}
     do
-        case "${i}" in
-            "$1")
+        case "${cmd},${i}" in
+            ",$1")
                 cmd="dust"
                 ;;
             *)
@@ -19,7 +19,7 @@ _dust() {
 
     case "${cmd}" in
         dust)
-            opts="-h -V -d -n -p -X -L -x -s -r -c -b -z -R -f -i -v -e -t -w -H -P -D -F --help --version --depth --number-of-lines --full-paths --ignore-directory --dereference-links --limit-filesystem --apparent-size --reverse --no-colors --no-percent-bars --min-size --screen-reader --skip-total --filecount --ignore_hidden --invert-filter --filter --file_types --terminal_width --si --no-progress --only-dir --only-file <inputs>..."
+            opts="-d -n -p -X -L -x -s -r -c -b -z -R -f -i -v -e -t -w -H -P -S -D -F -h -V --depth --number-of-lines --full-paths --ignore-directory --dereference-links --limit-filesystem --apparent-size --reverse --no-colors --no-percent-bars --min-size --screen-reader --skip-total --filecount --ignore_hidden --invert-filter --filter --file_types --terminal_width --si --no-progress --spinner --only-dir --only-file --help --version [inputs]..."
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -79,6 +79,14 @@ _dust() {
                     ;;
                 -w)
                     COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --spinner)
+                    COMPREPLY=($(compgen -W "bar dots arc" -- "${cur}"))
+                    return 0
+                    ;;
+                -S)
+                    COMPREPLY=($(compgen -W "bar dots arc" -- "${cur}"))
                     return 0
                     ;;
                 *)

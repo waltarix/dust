@@ -35,10 +35,8 @@ Register-ArgumentCompleter -Native -CommandName 'dust' -ScriptBlock {
             [CompletionResult]::new('--filter', 'filter', [CompletionResultType]::ParameterName, 'Only include filepaths matching this regex. For png files type: -e "\.png$" ')
             [CompletionResult]::new('-w', 'w', [CompletionResultType]::ParameterName, 'Specify width of output overriding the auto detection of terminal width')
             [CompletionResult]::new('--terminal_width', 'terminal_width', [CompletionResultType]::ParameterName, 'Specify width of output overriding the auto detection of terminal width')
-            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information')
-            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information')
-            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Print version information')
-            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Print version information')
+            [CompletionResult]::new('-S', 'S', [CompletionResultType]::ParameterName, 'S')
+            [CompletionResult]::new('--spinner', 'spinner', [CompletionResultType]::ParameterName, 'spinner')
             [CompletionResult]::new('-p', 'p', [CompletionResultType]::ParameterName, 'Subdirectories will not have their path shortened')
             [CompletionResult]::new('--full-paths', 'full-paths', [CompletionResultType]::ParameterName, 'Subdirectories will not have their path shortened')
             [CompletionResult]::new('-L', 'L', [CompletionResultType]::ParameterName, 'dereference sym links - Treat sym links as directories and go into them')
@@ -70,6 +68,10 @@ Register-ArgumentCompleter -Native -CommandName 'dust' -ScriptBlock {
             [CompletionResult]::new('--only-dir', 'only-dir', [CompletionResultType]::ParameterName, 'Only directories will be displayed.')
             [CompletionResult]::new('-F', 'F', [CompletionResultType]::ParameterName, 'Only files will be displayed. (Finds your largest files)')
             [CompletionResult]::new('--only-file', 'only-file', [CompletionResultType]::ParameterName, 'Only files will be displayed. (Finds your largest files)')
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help')
+            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Print version')
+            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Print version')
             break
         }
     })

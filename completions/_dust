@@ -19,8 +19,8 @@ _dust() {
 '--depth=[Depth to show]: : ' \
 '-n+[Number of lines of output to show. (Default is terminal_height - 10)]: : ' \
 '--number-of-lines=[Number of lines of output to show. (Default is terminal_height - 10)]: : ' \
-'*-X+[Exclude any file or directory with this name]: : ' \
-'*--ignore-directory=[Exclude any file or directory with this name]: : ' \
+'*-X+[Exclude any file or directory with this name]: :_files' \
+'*--ignore-directory=[Exclude any file or directory with this name]: :_files' \
 '-z+[Minimum size file to include in output]: : ' \
 '--min-size=[Minimum size file to include in output]: : ' \
 '(-e --filter -t --file_types)*-v+[Exclude filepaths matching this regex. To ignore png files type: -v "\\.png$" ]: : ' \
@@ -29,10 +29,8 @@ _dust() {
 '(-t --file_types)*--filter=[Only include filepaths matching this regex. For png files type: -e "\\.png$" ]: : ' \
 '-w+[Specify width of output overriding the auto detection of terminal width]: : ' \
 '--terminal_width=[Specify width of output overriding the auto detection of terminal width]: : ' \
-'-h[Print help information]' \
-'--help[Print help information]' \
-'-V[Print version information]' \
-'--version[Print version information]' \
+'-S+[]: :(bar dots arc)' \
+'--spinner=[]: :(bar dots arc)' \
 '-p[Subdirectories will not have their path shortened]' \
 '--full-paths[Subdirectories will not have their path shortened]' \
 '-L[dereference sym links - Treat sym links as directories and go into them]' \
@@ -64,7 +62,11 @@ _dust() {
 '(-F --only-file -t --file_types)--only-dir[Only directories will be displayed.]' \
 '(-D --only-dir)-F[Only files will be displayed. (Finds your largest files)]' \
 '(-D --only-dir)--only-file[Only files will be displayed. (Finds your largest files)]' \
-'*::inputs:' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+'::inputs:_files' \
 && ret=0
 }
 
@@ -74,4 +76,8 @@ _dust_commands() {
     _describe -t commands 'dust commands' commands "$@"
 }
 
-_dust "$@"
+if [ "$funcstack[1]" = "_dust" ]; then
+    _dust "$@"
+else
+    compdef _dust dust
+fi

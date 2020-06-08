@@ -23,7 +23,7 @@ use std::process;
 use sysinfo::{System, SystemExt};
 
 use self::display::draw_it;
-use clap::Values;
+use clap::parser::ValuesRef;
 use config::get_config;
 use dir_walker::walk_it;
 use filter::get_biggest;
@@ -87,11 +87,11 @@ fn get_width_of_terminal() -> usize {
         .unwrap_or(DEFAULT_TERMINAL_WIDTH)
 }
 
-fn get_regex_value(maybe_value: Option<Values>) -> Vec<Regex> {
+fn get_regex_value(maybe_value: Option<ValuesRef<String>>) -> Vec<Regex> {
     maybe_value
         .unwrap_or_default()
         .map(|reg| {
-            Regex::new(reg).unwrap_or_else(|err| {
+            Regex::new(reg.as_str()).unwrap_or_else(|err| {
                 eprintln!("Ignoring bad value for regex {err:?}");
                 process::exit(1)
             })
@@ -115,21 +115,22 @@ fn main() {
     let config = get_config();
     let stdin_lines = get_lines_from_stdin();
 
-    let target_dirs = match options.values_of("inputs") {
-        Some(values) => values.collect(),
+    let target_dirs = match options.get_many::<String>("inputs") {
+        Some(values) => values.map(|v| v.as_str()).collect(),
         None => stdin_lines.as_ref().map_or(vec!["."], |lines| {
             lines.iter().map(String::as_str).collect()
         }),
     };
 
-    let summarize_file_types = options.is_present("types");
+    let summarize_file_types = options.get_flag("types");
 
-    let filter_regexs = get_regex_value(options.values_of("filter"));
-    let invert_filter_regexs = get_regex_value(options.values_of("invert_filter"));
+    let filter_regexs = get_regex_value(options.get_many::<String>("filter"));
+    let invert_filter_regexs = get_regex_value(options.get_many::<String>("invert_filter"));
 
     let terminal_width = options
-        .value_of_t("width")
-        .unwrap_or_else(|_| get_width_of_terminal());
+        .get_one::<usize>("width")
+        .copied()
+        .unwrap_or_else(get_width_of_terminal);
 
     let depth = config.get_depth(&options);
 
@@ -142,24 +143,19 @@ fn main() {
     };
 
     let number_of_lines = options
-        .value_of("number_of_lines")
-        .and_then(|v| {
-            v.parse()
-                .map_err(|_| eprintln!("Ignoring bad value for number_of_lines"))
-                .ok()
-        })
+        .get_one::<usize>("number_of_lines")
+        .copied()
         .unwrap_or(default_height);
 
     let no_colors = init_color(config.get_no_colors(&options));
 
     let ignore_directories = options
-        .values_of("ignore_directory")
-        .unwrap_or_default()
-        .map(PathBuf::from);
+        .get_many::<PathBuf>("ignore_directory")
+        .unwrap_or_default();
 
-    let by_filecount = options.is_present("by_filecount");
-    let limit_filesystem = options.is_present("limit_filesystem");
-    let follow_links = options.is_present("dereference_links");
+    let by_filecount = options.get_flag("by_filecount");
+    let limit_filesystem = options.get_flag("limit_filesystem");
+    let follow_links = options.get_flag("dereference_links");
 
     let simplified_dirs = simplify_dir_names(target_dirs);
     let allowed_filesystems = limit_filesystem
@@ -167,14 +163,16 @@ fn main() {
         .unwrap_or_default();
 
     let ignored_full_path: HashSet<PathBuf> = ignore_directories
-        .flat_map(|x| simplified_dirs.iter().map(move |d| d.join(&x)))
+        .flat_map(|x| simplified_dirs.iter().map(move |d| d.join(x)))
         .collect();
 
     let iso = config.get_iso(&options);
 
     let ignore_hidden = config.get_ignore_hidden(&options);
 
-    let mut indicator = PIndicator::build_me();
+    let spinner = config.get_spinner(&options);
+
+    let mut indicator = PIndicator::build_me(spinner.chars());
     if !config.get_disable_progress(&options) {
         indicator.spawn(iso);
     }
@@ -207,8 +205,8 @@ fn main() {
                 only_file: config.get_only_file(&options),
                 number_of_lines,
                 depth,
-                using_a_filter: options.values_of("filter").is_some()
-                    || options.value_of("invert_filter").is_some(),
+                using_a_filter: options.get_many::<String>("filter").is_some()
+                    || options.get_one::<String>("invert_filter").is_some(),
             };
             get_biggest(top_level_nodes, agg_data)
         }
