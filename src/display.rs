@@ -2,7 +2,7 @@ extern crate ansi_term;
 
 use crate::utils::Node;
 
-use self::ansi_term::Colour::Red;
+use self::ansi_term::Colour::Fixed;
 use lscolors::{LsColors, Style};
 
 use terminal_size::{terminal_size, Height, Width};
@@ -280,18 +280,17 @@ fn get_printable_name<P: AsRef<Path>>(dir_name: &P, long_paths: bool) -> String 
     printable_name.display().to_string()
 }
 
-fn pad_or_trim_filename(node: &Node, indent: &str, display_data: &DisplayData) -> String {
+fn pad_or_trim_filename(node: &Node, indent: &str, display_data: &DisplayData) -> (String, String) {
     let name = get_printable_name(&node.name, display_data.short_paths);
     let indent_and_name = format!("{} {}", indent, name);
     let width = UnicodeWidthStr::width(&*indent_and_name);
 
     // Add spaces after the filename so we can draw the % used bar chart.
-    let name_and_padding = name
-        + &(repeat(" ")
-            .take(display_data.longest_string_length - width)
-            .collect::<String>());
+    let padding = repeat(" ")
+        .take(display_data.longest_string_length - width)
+        .collect::<String>();
 
-    maybe_trim_filename(name_and_padding, display_data)
+    (maybe_trim_filename(name, display_data), padding)
 }
 
 fn maybe_trim_filename(name_in: String, display_data: &DisplayData) -> String {
@@ -313,10 +312,19 @@ pub fn format_string(
     is_biggest: bool,
     display_data: &DisplayData,
 ) -> String {
-    let (percents, name_and_padding) = get_name_percent(node, indent, percent_bar, display_data);
+    let (percents, name, padding) = get_name_percent(node, indent, percent_bar, display_data);
     let pretty_size = get_pretty_size(node, is_biggest, display_data);
-    let pretty_name = get_pretty_name(node, name_and_padding, display_data);
+    let pretty_name = get_pretty_name(node, name, padding, display_data);
     format!("{} {} {}{}", pretty_size, indent, pretty_name, percents)
+}
+
+fn format_percents(bar_chart_in: &str, percent_size_str: String, is_colors_on: bool) -> String {
+    let bar_chart = if is_colors_on {
+        Fixed(228).paint(bar_chart_in).to_string()
+    } else {
+        bar_chart_in.into()
+    };
+    format!("│{} │ {:>4}", bar_chart, percent_size_str)
 }
 
 fn get_name_percent(
@@ -324,16 +332,16 @@ fn get_name_percent(
     indent: &str,
     bar_chart: &str,
     display_data: &DisplayData,
-) -> (String, String) {
+) -> (String, String, String) {
     if bar_chart != "" {
         let percent_size_str = format!("{:.0}%", display_data.percent_size(node) * 100.0);
-        let percents = format!("│{} │ {:>4}", bar_chart, percent_size_str);
-        let name_and_padding = pad_or_trim_filename(node, indent, display_data);
-        (percents, name_and_padding)
+        let percents = format_percents(bar_chart, percent_size_str, display_data.colors_on);
+        let (name, padding) = pad_or_trim_filename(node, indent, display_data);
+        (percents, name, padding)
     } else {
         let n = get_printable_name(&node.name, display_data.short_paths);
         let name = maybe_trim_filename(n, display_data);
-        ("".into(), name)
+        ("".into(), name, "".into())
     }
 }
 
@@ -348,13 +356,18 @@ fn get_pretty_size(node: &Node, is_biggest: bool, display_data: &DisplayData) ->
     };
 
     if is_biggest && display_data.colors_on {
-        format!("{}", Red.paint(output))
+        format!("{}", Fixed(9).paint(output))
     } else {
         output
     }
 }
 
-fn get_pretty_name(node: &Node, name_and_padding: String, display_data: &DisplayData) -> String {
+fn get_pretty_name(
+    node: &Node,
+    name: String,
+    padding: String,
+    display_data: &DisplayData,
+) -> String {
     if display_data.colors_on {
         let meta_result = fs::metadata(node.name.clone());
         let directory_color = display_data
@@ -363,9 +376,9 @@ fn get_pretty_name(node: &Node, name_and_padding: String, display_data: &Display
         let ansi_style = directory_color
             .map(Style::to_ansi_term_style)
             .unwrap_or_default();
-        format!("{}", ansi_style.paint(name_and_padding))
+        format!("{}{}", ansi_style.paint(name), padding)
     } else {
-        name_and_padding
+        name + &padding
     }
 }
 

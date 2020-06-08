@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - v*.*.*-custom
+      - v*.*.*-custom-r*
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Set RUST_TARGET
+      if: matrix.os == 'ubuntu-latest'
+      run: echo '::set-env name=RUST_TARGET::x86_64-unknown-linux-musl'
+
+    - name: Setup Rust
+      uses: hecrj/setup-rust-action@v1
+      with:
+        rust-version: stable
+        targets: ${{ env.RUST_TARGET }}
+
+    - name: Build
+      run: make release
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: '*.tar.xz'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

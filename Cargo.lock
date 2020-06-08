@@ -79,7 +79,7 @@ dependencies = [
  "bitflags 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "strsim 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "textwrap 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "unicode-width 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "unicode-width 0.1.8 (git+https://github.com/waltarix/unicode-width?tag=v0.1.8-custom)",
  "vec_map 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -114,7 +114,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "du-dust"
-version = "0.5.2"
+version = "0.5.3"
 dependencies = [
  "ansi_term 0.12.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "assert_cmd 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -126,7 +126,7 @@ dependencies = [
  "tempfile 3.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "terminal_size 0.1.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "thousands 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "unicode-width 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "unicode-width 0.1.8 (git+https://github.com/waltarix/unicode-width?tag=v0.1.8-custom)",
  "walkdir 2.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "winapi-util 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -357,7 +357,7 @@ name = "textwrap"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "unicode-width 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "unicode-width 0.1.8 (git+https://github.com/waltarix/unicode-width?tag=v0.1.8-custom)",
 ]
 
 [[package]]
@@ -381,7 +381,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "unicode-width"
 version = "0.1.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+source = "git+https://github.com/waltarix/unicode-width?tag=v0.1.8-custom#3a4e478fe5f2e7fbcf5ffad4404615b3f05e71fe"
 
 [[package]]
 name = "vec_map"
@@ -484,7 +484,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum thousands 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "3bf63baf9f5039dadc247375c29eb13706706cfde997d0330d05aa63a77d8820"
 "checksum thread_local 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d40c6d1b69745a6ec6fb1ca717914848da4b44ae29d9b3080cbee91d72a69b14"
 "checksum treeline 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a7f741b240f1a48843f9b8e0444fb55fb2a4ff67293b50a9179dfd5ea67f8d41"
-"checksum unicode-width 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)" = "9337591893a19b88d8d87f2cec1e73fad5cdfd10e5a6f349f498ad6ea2ffb1e3"
+"checksum unicode-width 0.1.8 (git+https://github.com/waltarix/unicode-width?tag=v0.1.8-custom)" = "<none>"
 "checksum vec_map 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)" = "f1bddf1187be692e79c5ffeab891132dfb0f236ed36a43c7ed39f1165ee20191"
 "checksum wait-timeout 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "9f200f5b12eb75f8c1ed65abd4b2db8a6e1b138a20de009dacee265a2498f3f6"
 "checksum walkdir 2.3.1 (registry+https://github.com/rust-lang/crates.io-index)" = "777182bc735b6424e1a57516d35ed72cb8019d85c8c9bf536dccb3445c1a2f7d"
