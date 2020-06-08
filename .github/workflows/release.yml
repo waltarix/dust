@@ -1,0 +1,50 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - v*.*.*-custom
+      - v*.*.*-custom-r*
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            rust-target: x86_64-unknown-linux-musl
+          - os: macos-latest
+            rust-target: x86_64-apple-darwin
+          - os: macos-latest
+            rust-target: aarch64-apple-darwin
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Set RUST_TARGET
+      run: echo 'RUST_TARGET=${{ matrix.rust-target }}' >> $GITHUB_ENV
+
+    - name: Setup Rust
+      uses: hecrj/setup-rust-action@v1
+      with:
+        rust-version: stable
+        targets: ${{ matrix.rust-target }}
+
+    - name: Set environment variables for Apple Silicon
+      if: matrix.rust-target == 'aarch64-apple-darwin'
+      run: |
+        echo "SDKROOT=$(xcrun -sdk macosx11.0 --show-sdk-path)" >> $GITHUB_ENV
+        echo "MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx11.0 --show-sdk-platform-version)" >> $GITHUB_ENV
+
+    - name: Build
+      run: make release
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: '*.tar.xz'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

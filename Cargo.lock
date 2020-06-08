@@ -462,8 +462,7 @@ checksum = "a7f741b240f1a48843f9b8e0444fb55fb2a4ff67293b50a9179dfd5ea67f8d41"
 [[package]]
 name = "unicode-width"
 version = "0.1.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9337591893a19b88d8d87f2cec1e73fad5cdfd10e5a6f349f498ad6ea2ffb1e3"
+source = "git+https://github.com/waltarix/unicode-width?tag=v0.1.8-custom#3a4e478fe5f2e7fbcf5ffad4404615b3f05e71fe"
 
 [[package]]
 name = "vec_map"
