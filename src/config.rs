@@ -7,6 +7,7 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use crate::display::get_number_format;
+use crate::progress::spinner::Spinner;
 
 #[derive(Deserialize, Default)]
 #[serde(rename_all = "kebab-case")]
@@ -29,6 +30,7 @@ pub struct Config {
     pub depth: Option<usize>,
     pub bars_on_right: Option<bool>,
     pub stack_size: Option<usize>,
+    pub spinner: Option<Spinner>,
 }
 
 impl Config {
@@ -116,6 +118,13 @@ impl Config {
         } else {
             from_cmd_line.copied()
         }
+    }
+
+    pub fn get_spinner(&self, options: &ArgMatches) -> Spinner {
+        options
+            .get_one::<Spinner>("spinner")
+            .copied()
+            .unwrap_or(self.spinner.unwrap_or(Spinner::Arc))
     }
 }
 

@@ -41,6 +41,7 @@ Register-ArgumentCompleter -Native -CommandName 'dust' -ScriptBlock {
             [CompletionResult]::new('--output-format', 'output-format', [CompletionResultType]::ParameterName, 'Changes output display size. si will print sizes in powers of 1000. b/bytes kb kib mb mib gb gib will print the whole tree in that size')
             [CompletionResult]::new('-S', 'S ', [CompletionResultType]::ParameterName, 'Specify memory to use as stack size - use if you see: ''fatal runtime error: stack overflow'' (default low memory=1048576, high memory=1073741824)')
             [CompletionResult]::new('--stack-size', 'stack-size', [CompletionResultType]::ParameterName, 'Specify memory to use as stack size - use if you see: ''fatal runtime error: stack overflow'' (default low memory=1048576, high memory=1073741824)')
+            [CompletionResult]::new('--spinner', 'spinner', [CompletionResultType]::ParameterName, 'spinner')
             [CompletionResult]::new('-p', 'p', [CompletionResultType]::ParameterName, 'Subdirectories will not have their path shortened')
             [CompletionResult]::new('--full-paths', 'full-paths', [CompletionResultType]::ParameterName, 'Subdirectories will not have their path shortened')
             [CompletionResult]::new('-L', 'L ', [CompletionResultType]::ParameterName, 'dereference sym links - Treat sym links as directories and go into them')

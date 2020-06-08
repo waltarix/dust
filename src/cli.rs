@@ -1,4 +1,6 @@
-use clap::{value_parser, Arg, Command};
+use clap::{value_parser, Arg, Command, ValueHint};
+
+use crate::progress::spinner::Spinner;
 
 // For single thread mode set this variable on your command line:
 // export RAYON_NUM_THREADS=1
@@ -208,6 +210,15 @@ pub fn build_cli() -> Command {
                 .value_parser(value_parser!(usize))
                 .help("Specify memory to use as stack size - use if you see: 'fatal runtime error: stack overflow' (default low memory=1048576, high memory=1073741824)"),
         )
-        .arg(Arg::new("params").num_args(1..)
-            .value_parser(value_parser!(String)))
+        .arg(
+            Arg::new("spinner")
+                .long("spinner")
+                .num_args(1)
+                .value_parser(value_parser!(Spinner))
+        )
+        .arg(
+            Arg::new("params").num_args(1..)
+                .value_parser(value_parser!(String))
+                .value_hint(ValueHint::AnyPath)
+        )
 }

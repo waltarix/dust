@@ -14,7 +14,7 @@ _dust() {
     fi
 
     local context curcontext="$curcontext" state line
-    _arguments "${_arguments_options[@]}" \
+    _arguments "${_arguments_options[@]}" : \
 '-d+[Depth to show]: : ' \
 '--depth=[Depth to show]: : ' \
 '-n+[Number of lines of output to show. (Default is terminal_height - 10)]: : ' \
@@ -35,6 +35,7 @@ _dust() {
 '--output-format=[Changes output display size. si will print sizes in powers of 1000. b/bytes kb kib mb mib gb gib will print the whole tree in that size]: : ' \
 '-S+[Specify memory to use as stack size - use if you see\: '\''fatal runtime error\: stack overflow'\'' (default low memory=1048576, high memory=1073741824)]: : ' \
 '--stack-size=[Specify memory to use as stack size - use if you see\: '\''fatal runtime error\: stack overflow'\'' (default low memory=1048576, high memory=1073741824)]: : ' \
+'--spinner=[]: :(bar dots arc)' \
 '-p[Subdirectories will not have their path shortened]' \
 '--full-paths[Subdirectories will not have their path shortened]' \
 '-L[dereference sym links - Treat sym links as directories and go into them]' \
@@ -72,7 +73,7 @@ _dust() {
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
-'*::params:' \
+'*::params:_files' \
 && ret=0
 }
 
