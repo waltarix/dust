@@ -446,8 +446,7 @@ checksum = "3bf63baf9f5039dadc247375c29eb13706706cfde997d0330d05aa63a77d8820"
 [[package]]
 name = "unicode-width"
 version = "0.1.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3ed742d4ea2bd1176e236172c8429aaf54486e7ac098db29ffe6529e0ce50973"
+source = "git+https://github.com/waltarix/unicode-width?tag=v0.1.9-custom-r1#90620e8e4eecd090500e53b3fce6571ed36c3b97"
 
 [[package]]
 name = "wait-timeout"
