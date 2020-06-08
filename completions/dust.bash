@@ -19,7 +19,7 @@ _dust() {
 
     case "${cmd}" in
         dust)
-            opts="-d -T -n -p -X -I -L -x -s -r -c -C -b -B -z -R -f -i -v -e -t -w -P -D -F -o -S -j -M -A -y -h -V --depth --threads --number-of-lines --full-paths --ignore-directory --ignore-all-in-file --dereference-links --limit-filesystem --apparent-size --reverse --no-colors --force-colors --no-percent-bars --bars-on-right --min-size --screen-reader --skip-total --filecount --ignore_hidden --invert-filter --filter --file_types --terminal_width --no-progress --print-errors --only-dir --only-file --output-format --stack-size --output-json --mtime --atime --ctime --files0-from --help --version [PATH]..."
+            opts="-d -T -n -p -X -I -L -x -s -r -c -C -b -B -z -R -f -i -v -e -t -w -P -D -F -o -S -j -M -A -y -h -V --depth --threads --number-of-lines --full-paths --ignore-directory --ignore-all-in-file --dereference-links --limit-filesystem --apparent-size --reverse --no-colors --force-colors --no-percent-bars --bars-on-right --min-size --screen-reader --skip-total --filecount --ignore_hidden --invert-filter --filter --file_types --terminal_width --no-progress --print-errors --only-dir --only-file --output-format --stack-size --output-json --mtime --atime --ctime --files0-from --spinner --help --version [PATH]..."
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -161,6 +161,10 @@ _dust() {
                     ;;
                 --files0-from)
                     COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --spinner)
+                    COMPREPLY=($(compgen -W "bar dots arc" -- "${cur}"))
                     return 0
                     ;;
                 *)

@@ -1,5 +1,7 @@
 use clap::{builder::PossibleValue, value_parser, Arg, Command};
 
+use crate::progress::spinner::Spinner;
+
 // For single thread mode set this variable on your command line:
 // export RAYON_NUM_THREADS=1
 
@@ -293,5 +295,11 @@ pub fn build_cli() -> Command {
                 .value_parser(value_parser!(String))
                 .num_args(1)
                 .help("run dust on NUL-terminated file names specified in file; if argument is -, then read names from standard input"),
+        )
+        .arg(
+            Arg::new("spinner")
+                .long("spinner")
+                .num_args(1)
+                .value_parser(value_parser!(Spinner))
         )
 }
