@@ -42,3 +42,6 @@ tempfile = "=3"
 [[test]]
 name = "integration"
 path = "tests/tests.rs"
+
+[patch.crates-io]
+unicode-width = { git = "https://github.com/waltarix/unicode-width", tag = "0.1.7-custom-r2" }

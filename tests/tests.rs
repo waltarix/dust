@@ -23,9 +23,9 @@ pub fn test_basic_output() {
     let output = str::from_utf8(&output).unwrap();
 
     assert!(output.contains(" ┌─┴ "));
-    assert!(output.contains("test_dir "));
+    assert!(output.contains("test_dir\x1b[0m "));
     assert!(output.contains("  ┌─┴ "));
-    assert!(output.contains("many "));
+    assert!(output.contains("many\x1b[0m "));
     assert!(output.contains("    ├── "));
     assert!(output.contains("hello_file"));
     assert!(output.contains("     ┌── "));
