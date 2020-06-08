@@ -4,6 +4,11 @@ use std::fs::File;
 use std::io::Error;
 use std::path::Path;
 
+#[path = "src/progress"]
+pub mod progress {
+    pub mod spinner;
+}
+
 include!("src/cli.rs");
 
 fn main() -> Result<(), Error> {

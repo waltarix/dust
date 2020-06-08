@@ -239,7 +239,9 @@ fn main() {
 
     let ignore_hidden = config.get_ignore_hidden(&options);
 
-    let mut indicator = PIndicator::build_me();
+    let spinner = config.get_spinner(&options);
+
+    let mut indicator = PIndicator::build_me(spinner.chars());
     if !config.get_disable_progress(&options) {
         indicator.spawn(output_format.clone())
     }
