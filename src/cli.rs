@@ -1,4 +1,4 @@
-use clap::{Arg, Command};
+use clap::{Arg, Command, ValueHint};
 
 pub fn build_cli() -> Command<'static> {
     Command::new("Dust")
@@ -131,5 +131,6 @@ pub fn build_cli() -> Command<'static> {
                 .long("si")
                 .help("print sizes in powers of 1000 (e.g., 1.1G)")
         )
-        .arg(Arg::new("inputs").multiple_occurrences(true).default_value("."))
+        .arg(
+            Arg::new("inputs").multiple_occurrences(true).default_value(".").value_hint(ValueHint::AnyPath))
 }
