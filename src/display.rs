@@ -285,19 +285,18 @@ pub fn format_string(
     let name = get_printable_name(&node.name, display_data.short_paths);
     let width = get_unicode_width_of_indent_and_name(indent, &name);
 
-    let name_and_padding = name
-        + &(repeat(" ")
-            .take(display_data.longest_string_length - width)
-            .collect::<String>());
+    let padding = &(repeat(" ")
+        .take(display_data.longest_string_length - width)
+        .collect::<String>());
 
     let percents = if percent_bar != "" {
-        format!("│{} │ {:>4}", percent_bar, percent_size_str)
+        format!("│{} │ {:>4}", Fixed(228).paint(percent_bar), percent_size_str)
     } else {
         "".into()
     };
 
     let pretty_size = if is_biggest && display_data.colors_on {
-        format!("{}", Fixed(196).paint(pretty_size))
+        format!("{}", Fixed(9).paint(pretty_size))
     } else {
         pretty_size
     };
@@ -310,9 +309,9 @@ pub fn format_string(
         let ansi_style = directory_color
             .map(Style::to_ansi_term_style)
             .unwrap_or_default();
-        format!("{}", ansi_style.paint(name_and_padding))
+        format!("{}{}", ansi_style.paint(name), padding)
     } else {
-        name_and_padding
+        name + padding
     };
 
     format!("{} {} {}{}", pretty_size, indent, pretty_name, percents)
