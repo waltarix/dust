@@ -5,6 +5,7 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use crate::display::UNITS;
+use crate::progress::spinner::Spinner;
 
 #[derive(Deserialize, Default)]
 #[serde(rename_all = "kebab-case")]
@@ -24,53 +25,52 @@ pub struct Config {
     pub only_file: Option<bool>,
     pub disable_progress: Option<bool>,
     pub depth: Option<usize>,
+    pub spinner: Option<Spinner>,
 }
 
 impl Config {
     pub fn get_no_colors(&self, options: &ArgMatches) -> bool {
-        Some(true) == self.no_colors || options.is_present("no_colors")
+        Some(true) == self.no_colors || options.get_flag("no_colors")
     }
     pub fn get_disable_progress(&self, options: &ArgMatches) -> bool {
-        Some(true) == self.disable_progress || options.is_present("disable_progress")
+        Some(true) == self.disable_progress || options.get_flag("disable_progress")
     }
     pub fn get_apparent_size(&self, options: &ArgMatches) -> bool {
-        Some(true) == self.display_apparent_size || options.is_present("display_apparent_size")
+        Some(true) == self.display_apparent_size || options.get_flag("display_apparent_size")
     }
     pub fn get_ignore_hidden(&self, options: &ArgMatches) -> bool {
-        Some(true) == self.ignore_hidden || options.is_present("ignore_hidden")
+        Some(true) == self.ignore_hidden || options.get_flag("ignore_hidden")
     }
     pub fn get_full_paths(&self, options: &ArgMatches) -> bool {
         // If we are only showing files, always show full paths
         Some(true) == self.display_full_paths
-            || options.is_present("display_full_paths")
+            || options.get_flag("display_full_paths")
             || self.get_only_file(options)
     }
     pub fn get_reverse(&self, options: &ArgMatches) -> bool {
-        Some(true) == self.reverse || options.is_present("reverse")
+        Some(true) == self.reverse || options.get_flag("reverse")
     }
     pub fn get_no_bars(&self, options: &ArgMatches) -> bool {
-        Some(true) == self.no_bars || options.is_present("no_bars")
+        Some(true) == self.no_bars || options.get_flag("no_bars")
     }
     pub fn get_iso(&self, options: &ArgMatches) -> bool {
-        Some(true) == self.iso || options.is_present("iso")
+        Some(true) == self.iso || options.get_flag("iso")
     }
     pub fn get_skip_total(&self, options: &ArgMatches) -> bool {
-        Some(true) == self.skip_total || options.is_present("skip_total")
+        Some(true) == self.skip_total || options.get_flag("skip_total")
     }
     pub fn get_screen_reader(&self, options: &ArgMatches) -> bool {
-        Some(true) == self.screen_reader || options.is_present("screen_reader")
+        Some(true) == self.screen_reader || options.get_flag("screen_reader")
     }
     pub fn get_depth(&self, options: &ArgMatches) -> usize {
-        if let Some(v) = options.value_of("depth") {
-            if let Ok(v) = v.parse::<usize>() {
-                return v;
-            }
+        if let Some(v) = options.get_one::<usize>("depth") {
+            return *v;
         }
 
         self.depth.unwrap_or(usize::MAX)
     }
     pub fn get_min_size(&self, options: &ArgMatches, iso: bool) -> Option<usize> {
-        let size_from_param = options.value_of("min_size");
+        let size_from_param = options.get_one::<String>("min_size").map(|v| v.as_str());
         self._get_min_size(size_from_param, iso)
     }
     fn _get_min_size(&self, min_size: Option<&str>, iso: bool) -> Option<usize> {
@@ -85,10 +85,17 @@ impl Config {
         }
     }
     pub fn get_only_dir(&self, options: &ArgMatches) -> bool {
-        Some(true) == self.only_dir || options.is_present("only_dir")
+        Some(true) == self.only_dir || options.get_flag("only_dir")
     }
     pub fn get_only_file(&self, options: &ArgMatches) -> bool {
-        Some(true) == self.only_file || options.is_present("only_file")
+        Some(true) == self.only_file || options.get_flag("only_file")
+    }
+
+    pub fn get_spinner(&self, options: &ArgMatches) -> Spinner {
+        options
+            .get_one::<Spinner>("spinner")
+            .copied()
+            .unwrap_or(self.spinner.unwrap_or(Spinner::Arc))
     }
 }
 
@@ -151,7 +158,7 @@ pub fn get_config() -> Config {
 mod tests {
     #[allow(unused_imports)]
     use super::*;
-    use clap::{Arg, ArgMatches, Command};
+    use clap::{value_parser, Arg, ArgMatches, Command};
 
     #[test]
     fn test_conversion() {
@@ -209,7 +216,12 @@ mod tests {
     fn get_args(args: Vec<&str>) -> ArgMatches {
         Command::new("Dust")
             .trailing_var_arg(true)
-            .arg(Arg::new("depth").long("depth").takes_value(true))
+            .arg(
+                Arg::new("depth")
+                    .long("depth")
+                    .num_args(1)
+                    .value_parser(value_parser!(usize)),
+            )
             .get_matches_from(args)
     }
 }

@@ -26,9 +26,9 @@ pub fn test_basic_output() {
     let output = build_command(vec!["tests/test_dir/"]);
 
     assert!(output.contains(" ┌─┴ "));
-    assert!(output.contains("test_dir "));
+    assert!(output.contains("test_dir\x1b[0m "));
     assert!(output.contains("  ┌─┴ "));
-    assert!(output.contains("many "));
+    assert!(output.contains("many\x1b[0m "));
     assert!(output.contains("    ├── "));
     assert!(output.contains("hello_file"));
     assert!(output.contains("     ┌── "));
@@ -152,6 +152,16 @@ pub fn test_output_screen_reader() {
     for block in ['█', '▓', '▒', '░'] {
         assert!(!output.contains(block));
     }
+}
+
+#[test]
+pub fn test_output_screen_reader_with_color() {
+    let output = build_command(vec!["--screen-reader", "-f", "tests/test_dir/"]);
+    println!("{}", output);
+    assert!(output.contains("test_dir\x1b[0m   0 \x1b[38;5;9m2\x1b[0m "));
+    assert!(output.contains("many\x1b[0m       1 \x1b[38;5;9m2\x1b[0m "));
+    assert!(output.contains("hello_file 2 \x1b[38;5;9m1\x1b[0m "));
+    assert!(output.contains("a_file     2 1 "));
 }
 
 #[test]
